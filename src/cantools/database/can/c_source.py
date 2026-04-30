@@ -353,7 +353,7 @@ STRUCT_FMT = '''\
 {comment}\
  * All signal values are as on the CAN bus.
  */
-struct {database_name}_{message_name}_t {{
+struct {message_name}_t {{
 {members}
 }};
 '''
@@ -368,9 +368,9 @@ DECLARATION_PACK_FMT = '''\
  *
  * @return Size of packed data, or negative error code.
  */
-int {database_name}_{message_name}_pack(
+int {message_name}_pack(
     uint8_t *dst_p,
-    const struct {database_name}_{message_name}_t *src_p,
+    const struct {message_name}_t *src_p,
     size_t size);
 
 '''
@@ -385,8 +385,8 @@ DECLARATION_UNPACK_FMT = '''\
  *
  * @return zero(0) or negative error code.
  */
-int {database_name}_{message_name}_unpack(
-    struct {database_name}_{message_name}_t *dst_p,
+int {message_name}_unpack(
+    struct {message_name}_t *dst_p,
     const uint8_t *src_p,
     size_t size);
 
@@ -400,7 +400,7 @@ SIGNAL_DECLARATION_ENCODE_FMT = '''\
  *
  * @return Encoded signal.
  */
-{type_name} {database_name}_{message_name}_{signal_name}_encode({floating_point_type} value);
+{type_name} {message_name}_{signal_name}_encode({floating_point_type} value);
 
 '''
 
@@ -412,7 +412,7 @@ SIGNAL_DECLARATION_DECODE_FMT = '''\
  *
  * @return Decoded signal.
  */
-{floating_point_type} {database_name}_{message_name}_{signal_name}_decode({type_name} value);
+{floating_point_type} {message_name}_{signal_name}_decode({type_name} value);
 
 '''
 
@@ -424,23 +424,7 @@ SIGNAL_DECLARATION_IS_IN_RANGE_FMT = '''\
  *
  * @return true if in range, false otherwise.
  */
-bool {database_name}_{message_name}_{signal_name}_is_in_range({type_name} value);
-'''
-
-SIGNAL_DECLARATION_IS_IN_PHYS_RANGE_FMT = '''\
-
-/**
- * Check that given physical value is in allowed range before encoding.
- *
- * Use this BEFORE calling _encode() to avoid silent integer overflow:
- *   encode(-1.0) on a [0,100] signal wraps to 255 and passes is_in_range().
- *   is_in_phys_range(-1.0) correctly returns false.
- *
- * @param[in] value Physical signal value to check.
- *
- * @return true if in range, false otherwise.
- */
-bool {database_name}_{message_name}_{signal_name}_is_in_phys_range({floating_point_type} value);
+bool {message_name}_{signal_name}_is_in_range({type_name} value);
 '''
 
 MESSAGE_DECLARATION_INIT_FMT = '''\
@@ -451,15 +435,15 @@ MESSAGE_DECLARATION_INIT_FMT = '''\
  *
  * @return zero(0) on success or (-1) in case of nullptr argument.
  */
-int {database_name}_{message_name}_init(struct {database_name}_{message_name}_t *msg_p);
+int {message_name}_init(struct {message_name}_t *msg_p);
 '''
 
 MESSAGE_DEFINITION_INIT_FMT = '''\
-int {database_name}_{message_name}_init(struct {database_name}_{message_name}_t *msg_p)
+int {message_name}_init(struct {message_name}_t *msg_p)
 {{
     if (msg_p == NULL) return -1;
 
-    memset(msg_p, 0, sizeof(struct {database_name}_{message_name}_t));
+    memset(msg_p, 0, sizeof(struct {message_name}_t));
 {init_body}
     return 0;
 }}
@@ -506,9 +490,9 @@ static inline {var_type} unpack_right_shift_u{length}(
 '''
 
 DEFINITION_PACK_FMT = '''\
-int {database_name}_{message_name}_pack(
+int {message_name}_pack(
     uint8_t *dst_p,
-    const struct {database_name}_{message_name}_t *src_p,
+    const struct {message_name}_t *src_p,
     size_t size)
 {{
 {pack_unused}\
@@ -525,8 +509,8 @@ int {database_name}_{message_name}_pack(
 '''
 
 DEFINITION_UNPACK_FMT = '''\
-int {database_name}_{message_name}_unpack(
-    struct {database_name}_{message_name}_t *dst_p,
+int {message_name}_unpack(
+    struct {message_name}_t *dst_p,
     const uint8_t *src_p,
     size_t size)
 {{
@@ -542,7 +526,7 @@ int {database_name}_{message_name}_unpack(
 '''
 
 SIGNAL_DEFINITION_ENCODE_FMT = '''\
-{type_name} {database_name}_{message_name}_{signal_name}_encode({floating_point_type} value)
+{type_name} {message_name}_{signal_name}_encode({floating_point_type} value)
 {{
     return ({type_name})({encode});
 }}
@@ -550,7 +534,7 @@ SIGNAL_DEFINITION_ENCODE_FMT = '''\
 '''
 
 SIGNAL_DEFINITION_DECODE_FMT = '''\
-{floating_point_type} {database_name}_{message_name}_{signal_name}_decode({type_name} value)
+{floating_point_type} {message_name}_{signal_name}_decode({type_name} value)
 {{
     return ({decode});
 }}
@@ -558,26 +542,17 @@ SIGNAL_DEFINITION_DECODE_FMT = '''\
 '''
 
 SIGNAL_DEFINITION_IS_IN_RANGE_FMT = '''\
-bool {database_name}_{message_name}_{signal_name}_is_in_range({type_name} value)
+bool {message_name}_{signal_name}_is_in_range({type_name} value)
 {{
 {unused}\
     return ({check});
 }}
 '''
 
-SIGNAL_DEFINITION_IS_IN_PHYS_RANGE_FMT = '''\
-
-bool {database_name}_{message_name}_{signal_name}_is_in_phys_range({floating_point_type} value)
-{{
-{phys_unused}\
-    return ({phys_check});
-}}
-'''
-
 EMPTY_DEFINITION_FMT = '''\
-int {database_name}_{message_name}_pack(
+int {message_name}_pack(
     uint8_t *dst_p,
-    const struct {database_name}_{message_name}_t *src_p,
+    const struct {message_name}_t *src_p,
     size_t size)
 {{
     (void)dst_p;
@@ -587,8 +562,8 @@ int {database_name}_{message_name}_pack(
     return (0);
 }}
 
-int {database_name}_{message_name}_unpack(
-    struct {database_name}_{message_name}_t *dst_p,
+int {message_name}_unpack(
+    struct {message_name}_t *dst_p,
     const uint8_t *src_p,
     size_t size)
 {{
@@ -809,11 +784,12 @@ class CodeGenSignal:
                     shift_direction = 'left'
                 else:
                     shift_direction = 'right'
-            elif shift < 0:
-                shift = -shift
-                shift_direction = 'right'
             else:
-                shift_direction = 'left'
+                if shift < 0:
+                    shift = -shift
+                    shift_direction = 'right'
+                else:
+                    shift_direction = 'left'
 
             yield index, shift, shift_direction, mask
 
@@ -1326,40 +1302,6 @@ def _generate_is_in_range(cg_signal: "CodeGenSignal") -> str:
 
     return ' && '.join(check)
 
-def _generate_is_in_phys_range(cg_signal: "CodeGenSignal", use_float: bool) -> tuple[str, str]:
-    """Generate is_in_range check in the physical (floating-point) domain.
-
-    The standard is_in_range() checks the raw integer value AFTER encode().
-    If the physical value overflows the raw type, it can produce a raw value
-    that wrongly passes is_in_range() — silent data corruption.
-
-    Example — uint8 signal, scale=1, offset=0, range [0, 100]:
-        encode(260.0) -> (uint8_t)(260) = 4   -> is_in_range(4)   -> TRUE  <- BUG
-        encode(-1.0)  -> (uint8_t)(-1)  = 255 -> is_in_range(255) -> FALSE <- ok by chance
-        is_in_phys_range(260.0) -> FALSE  <- correct
-        is_in_phys_range(-1.0)  -> FALSE  <- correct
-
-    Returns:
-        phys_check  -- C expression for the return statement
-        phys_unused -- (void)value cast if no bounds defined, else ""
-    """
-    minimum = cg_signal.signal.minimum
-    maximum = cg_signal.signal.maximum
-    f_suffix = "f" if use_float else ""
-    check = []
-
-    if minimum is not None:
-        check.append(f"(value >= {float(minimum)}{f_suffix})")
-
-    if maximum is not None:
-        check.append(f"(value <= {float(maximum)}{f_suffix})")
-
-    if not check:
-        return "true", "    (void)value;\n\n"
-    elif len(check) == 1:
-        return check[0][1:-1], ""
-    else:
-        return " && ".join(check), ""
 
 def _generate_frame_id_defines(database_name: str,
                                cg_messages: list["CodeGenMessage"],
@@ -1527,12 +1469,6 @@ def _generate_declarations(database_name: str,
                     signal_name=cg_signal.snake_name,
                     type_name=cg_signal.type_name)
 
-                signal_declaration += SIGNAL_DECLARATION_IS_IN_PHYS_RANGE_FMT.format(
-                    database_name=database_name,
-                    message_name=cg_message.snake_name,
-                    signal_name=cg_signal.snake_name,
-                    floating_point_type=_get_floating_point_type(use_float))
-
                 signal_declarations.append(signal_declaration)
         declaration = ""
         if is_sender:
@@ -1587,7 +1523,6 @@ def _generate_definitions(database_name: str,
 
             encode, decode = _generate_encode_decode(cg_signal, _use_float, use_round)
             check = _generate_is_in_range(cg_signal)
-            phys_check, phys_unused = _generate_is_in_phys_range(cg_signal, _use_float)
 
             if _is_receiver(cg_signal, node_name):
                 is_receiver = True
@@ -1625,14 +1560,6 @@ def _generate_definitions(database_name: str,
                     type_name=cg_signal.type_name,
                     unused=unused,
                     check=check)
-
-                signal_definition += SIGNAL_DEFINITION_IS_IN_PHYS_RANGE_FMT.format(
-                    database_name=database_name,
-                    message_name=cg_message.snake_name,
-                    signal_name=cg_signal.snake_name,
-                    floating_point_type=_get_floating_point_type(_use_float),
-                    phys_check=phys_check,
-                    phys_unused=phys_unused)
 
                 signal_definitions.append(signal_definition)
 
@@ -1736,7 +1663,7 @@ def _generate_fuzzer_source(database_name: str,
     calls = []
 
     for cg_message in cg_messages:
-        name = f'{database_name}_{camel_to_snake_case(cg_message.message.name)}'
+        name = f'{camel_to_snake_case(cg_message.message.name)}'
 
         test = TEST_FMT.format(name=name)
         tests.append(test)
