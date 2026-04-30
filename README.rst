@@ -3,7 +3,7 @@
 About
 =====
 
-CAN BUS tools in Python 3.
+CAN BUS tools in Python 3 modified for use in PERŁA by AGH Eko-Energia
 
 - `DBC`_, `KCD`_, SYM, ARXML 3&4 and CDD file parsing.
 
@@ -32,7 +32,7 @@ Installation
 
 .. code-block:: bash
 
-    python3 -m pip install cantools
+    python3 -m pip install path\cantools
 
 Example usage
 =============
