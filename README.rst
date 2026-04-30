@@ -27,7 +27,7 @@ Project homepage: https://github.com/cantools/cantools
 
 Documentation: https://cantools.readthedocs.io
 
-Installation
+Installation for AGH EKO-Energia
 ============
 
 .. code-block:: bash
