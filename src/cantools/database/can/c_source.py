@@ -820,10 +820,10 @@ def _canonical(value: str) -> str:
 
 
 def camel_to_snake_case(value: str) -> str:
-    value = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', value)
-    value = re.sub(r'(_+)', '_', value)
-    value = re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', value).lower()
-    value = _canonical(value)
+    # value = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', value)
+    # value = re.sub(r'(_+)', '_', value)
+    # value = re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', value).lower()
+    # value = _canonical(value)
 
     return value
 
@@ -1307,7 +1307,7 @@ def _generate_frame_id_defines(database_name: str,
                                cg_messages: list["CodeGenMessage"],
                                node_name: str | None) -> str:
     return '\n'.join([
-        f'#define {database_name.upper()}_{cg_message.snake_name.upper()}_FRAME_ID (0x{cg_message.message.frame_id:02x}u)'
+        f'#define {cg_message.snake_name.upper()}_FRAME_ID (0x{cg_message.message.frame_id:02x}u)'
         for cg_message in cg_messages if _is_sender_or_receiver(cg_message, node_name)
     ])
 
@@ -1316,7 +1316,7 @@ def _generate_frame_length_defines(database_name: str,
                                    cg_messages: list["CodeGenMessage"],
                                    node_name: str | None) -> str:
     result = '\n'.join([
-        f'#define {database_name.upper()}_{cg_message.snake_name.upper()}_LENGTH ({cg_message.message.length}u)'
+        f'#define {cg_message.snake_name.upper()}_LENGTH ({cg_message.message.length}u)'
         for cg_message in cg_messages if _is_sender_or_receiver(cg_message, node_name)
     ])
 
@@ -1327,7 +1327,7 @@ def _generate_frame_cycle_time_defines(database_name: str,
                                        cg_messages: list["CodeGenMessage"],
                                        node_name: str | None) -> str:
     result = '\n'.join([
-        f'#define {database_name.upper()}_{cg_message.snake_name.upper()}_CYCLE_TIME_MS ({cg_message.message.cycle_time}u)'
+        f'#define {cg_message.snake_name.upper()}_CYCLE_TIME_MS ({cg_message.message.cycle_time}u)'
         for cg_message in cg_messages if cg_message.message.cycle_time is not None and
                                       _is_sender_or_receiver(cg_message, node_name)
     ])
@@ -1339,7 +1339,7 @@ def _generate_is_extended_frame_defines(database_name: str,
                                         cg_messages: list["CodeGenMessage"],
                                         node_name: str | None) -> str:
     result = '\n'.join([
-        f'#define {database_name.upper()}_{cg_message.snake_name.upper()}_IS_EXTENDED ({int(cg_message.message.is_extended_frame)})'
+        f'#define {cg_message.snake_name.upper()}_IS_EXTENDED ({int(cg_message.message.is_extended_frame)})'
         for cg_message in cg_messages if _is_sender_or_receiver(cg_message, node_name)
     ])
 
@@ -1361,7 +1361,7 @@ def _generate_choices_defines(database_name: str,
 
             choices = _format_choices(cg_signal, cg_signal.snake_name)
             signal_choices_defines = '\n'.join([
-                f'#define {database_name.upper()}_{cg_message.snake_name.upper()}_{choice}'
+                f'#define {cg_message.snake_name.upper()}_{choice}'
                 for choice in choices
             ])
             choices_defines.append(signal_choices_defines)
@@ -1373,7 +1373,7 @@ def _generate_frame_name_macros(database_name: str,
                                 cg_messages: list["CodeGenMessage"],
                                 node_name: str | None) -> str:
     result = '\n'.join([
-        f'#define {database_name.upper()}_{cg_message.snake_name.upper()}_NAME "{cg_message.message.name}"'
+        f'#define {cg_message.snake_name.upper()}_NAME "{cg_message.message.name}"'
         for cg_message in cg_messages if _is_sender_or_receiver(cg_message, node_name)
     ])
 
@@ -1384,7 +1384,7 @@ def _generate_signal_name_macros(database_name: str,
                                  cg_messages: list["CodeGenMessage"],
                                  node_name: str | None) -> str:
     result = '\n'.join([
-        f'#define {database_name.upper()}_{cg_message.snake_name.upper()}_{cg_signal.snake_name.upper()}_NAME "{cg_signal.signal.name}"'
+        f'#define {cg_message.snake_name.upper()}_{cg_signal.snake_name.upper()}_NAME "{cg_signal.signal.name}"'
         for cg_message in cg_messages if _is_sender_or_receiver(cg_message, node_name) for cg_signal in cg_message.cg_signals
     ])
 
