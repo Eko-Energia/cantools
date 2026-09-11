@@ -1476,6 +1476,44 @@ BATTERY_VT(
                 self.assert_files_equal(tmpdir / database_c,
                                         'tests/files/c_source/' + database_c)
 
+    def test_generate_c_source_zero_length_message_other_node(self):
+        """Every emitted pack function must have a struct to go with it.
+
+        _generate_structs() omits the struct for a message the requested node
+        neither sends nor receives. For a zero-length message the definition
+        branch used to emit pack/unpack anyway, producing a signature whose
+        first mention of the struct is inside its own parameter list - which
+        GCC rejects under -Werror.
+
+        no_signals.dbc has Message2 with length 0 sent by TestNode, so
+        generating for Node triggers it.
+        """
+        with tempfile.TemporaryDirectory() as _tmpdir:
+            tmpdir = Path(_tmpdir)
+
+            argv = [
+                'cantools',
+                'generate_c_source',
+                '--node', 'Node',
+                'tests/files/dbc/no_signals.dbc',
+                '-o',
+                str(tmpdir),
+            ]
+
+            with patch('sys.argv', argv):
+                cantools._main()
+
+            source = read_file(tmpdir / 'no_signals.c')
+            header = read_file(tmpdir / 'no_signals.h')
+
+            emitted = re.findall(r'^int (\w+)_pack\(', source, re.MULTILINE)
+
+            for name in emitted:
+                self.assertIn(
+                    f'struct {name}_t {{',
+                    header,
+                    f'{name}_pack() emitted without struct {name}_t')
+
     def test_generate_c_source_sender_node(self):
         databases = [
             'motohawk',
