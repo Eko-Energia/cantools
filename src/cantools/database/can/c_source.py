@@ -1607,9 +1607,16 @@ def _generate_definitions(database_name: str,
                                                                 message_name=cg_message.snake_name,
                                                                 init_body=signals_init_body)
 
-        else:
+        elif is_sender or is_receiver:
             definition = EMPTY_DEFINITION_FMT.format(database_name=database_name,
                                                      message_name=cg_message.snake_name)
+        else:
+            # _generate_structs() omits the struct for a message this node
+            # neither sends nor receives, so emitting pack/unpack stubs here
+            # would declare that struct inside a parameter list - which does not
+            # compile under -Werror. The length > 0 branch above is already
+            # gated this way; this branch was not.
+            definition = ""
 
         if signal_definitions:
             definition += '\n' + '\n'.join(signal_definitions)
